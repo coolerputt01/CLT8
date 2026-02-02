@@ -1,0 +1,20 @@
+// CLT8 CPU by coolerputt in 2026.
+
+import "src/cpu.zc"
+
+fn main() {
+    let cpu : CLT8PU;
+    start(&cpu);
+    let program : byte[RAM_SIZE];
+    
+    program[0] = 0x1E;
+	program[1] = 0x2F;
+	program[2] = 0x40;
+	
+	program[4] = 0x00;
+	
+	program[14] = 5;
+	program[15] = 3;
+    loadProgram(&cpu,program);
+    run(&cpu);
+}

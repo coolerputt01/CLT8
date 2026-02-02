@@ -1,0 +1,76 @@
+import "std/io.zc"
+
+def RAM_SIZE : int = 16;
+
+struct CLT8PU {
+    RAM : byte[16];
+
+    PC: byte = 0;
+    R0: byte = 0;
+    R1: byte = 0;
+    IR: byte = 0;
+
+    isRunning : bool;
+}
+
+fn start(cpu: CLT8PU*){
+    cpu.isRunning = true;
+}
+
+fn loadProgram(cpu : CLT8PU*,program : byte[RAM_SIZE]){
+    for i in 0..16 {
+        cpu.RAM[i] = program[i];
+    }
+}
+
+fn fetch(cpu : CLT8PU*){
+    cpu.IR = cpu.RAM[cpu.PC];
+    cpu.PC++;
+}
+
+fn decodeAndExecute(cpu : CLT8PU*){
+    let opcode : byte = (cpu.IR & 0xF0) >> 4;
+    let operand : byte = (cpu.IR & 0x0F);
+
+    match opcode {
+        0x00 => {
+            cpu.isRunning = false;
+        },
+        0x01 => {
+            cpu.R0 = cpu.RAM[operand];
+        },
+        0x02 => {
+            cpu.R1 = cpu.RAM[operand];
+        },
+        0x03 => {
+            cpu.RAM[operand] = cpu.R0;
+        },
+        0x04 => {
+            cpu.R0 += cpu.R1;
+        },
+        0x05 => {
+            cpu.R0 -= cpu.R1;
+        },
+        0x06 => {
+            cpu.PC = operand;
+        },
+        0x07 => {
+            if(cpu.R0 == 0){
+                cpu.PC = operand;
+            }
+        },
+        _ => {
+            print "Opcode is not valid.\n";
+        }
+    }
+}
+
+fn debug(cpu: CLT8PU*){
+    println "PC: {cpu.PC} \nIR: {cpu.IR}";
+}
+
+fn run(cpu: CLT8PU*){
+    fetch(cpu);
+    decodeAndExecute(cpu);
+    debug(cpu);
+}
